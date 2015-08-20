@@ -4,9 +4,9 @@
   "author": "Puppet Labs",
   "summary": "Puppet module for HAProxy",
   "license": "Apache-2.0",
-  "source": "https://github.com/puppetlabs/puppetlabs-haproxy",
-  "project_page": "https://github.com/puppetlabs/puppetlabs-haproxy",
-  "issues_url": "https://github.com/puppetlabs/puppetlabs-haproxy/issues",
+  "source": "https://github.com/andyh2/puppetlabs-haproxy",
+  "project_page": "https://github.com/andyh2/puppetlabs-haproxy",
+  "issues_url": "https://github.com/andyh2/puppetlabs-haproxy/issues",
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
