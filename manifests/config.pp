@@ -11,17 +11,15 @@ class haproxy::config inherits haproxy {
     file { $config_file:
       require => File[$base_config_file],
       source  => $base_config_file,
-      replace => false, # Config file is managed 
+      replace => false, # Live config file is managed by haproxy-update.sh
     }
     
-    # TODO subscribe to base_config_file changes and run merge script
-    
-    $config_write_path = $base_config_file
+    $managed_config_path = $base_config_file
   } else {
-    $config_write_path = $config_file
+    $managed_config_path = $config_file
   }
 
-  concat { $config_write_path:
+  concat { $managed_config_path:
     owner   => '0',
     group   => '0',
     mode    => '0644',
@@ -29,14 +27,14 @@ class haproxy::config inherits haproxy {
 
   # Simple Header
   concat::fragment { '00-header':
-    target  => $config_write_path,
+    target  => $managed_config_path,
     order   => '01',
     content => "# This file managed by Puppet\n",
   }
 
   # Template uses $global_options, $defaults_options
   concat::fragment { 'haproxy-base':
-    target  => $config_write_path,
+    target  => $managed_config_path,
     order   => '10',
     content => template('haproxy/haproxy-base.cfg.erb'),
   }
