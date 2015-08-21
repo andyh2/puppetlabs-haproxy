@@ -11,7 +11,7 @@ class haproxy::config inherits haproxy {
     file { $config_file:
       require => File[$base_config_file],
       source  => $base_config_file,
-      replace => false, # Live config file is managed by haproxy-update.sh
+      replace => false, # After initial provision, live config file is managed by haproxy-update.sh
     }
     
     $managed_config_path = $base_config_file

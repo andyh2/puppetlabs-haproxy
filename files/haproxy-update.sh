@@ -33,7 +33,7 @@ EOF
 
 # Defaults
 LIVE_CONFIG=/etc/haproxy/haproxy.cfg
-BASE_CONFIG/etc/haproxy/haproxy.cfg.base
+BASE_CONFIG=/etc/haproxy/haproxy.cfg.base
 CONTAINER_HOST="127.0.0.1"
 DISPLAY_HELP=false
 SERVER_NAME_TAG="DYNAMIC" 
