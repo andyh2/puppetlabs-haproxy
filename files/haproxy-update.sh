@@ -119,14 +119,14 @@ function remove_live_directive() {
     local BACKEND_NAME="$1"
     local PORT="$2"
 
-    sed -i'' '/'"$(server_directive_re "${BACKEND_NAME}" "${PORT}")"'/d' "${LIVE_CONFIG}"
+    gsed -r -i'' '/'"$(server_directive_re "${BACKEND_NAME}" "${PORT}")"'/d' "${LIVE_CONFIG}"
 }
 
 function server_directive_re() {
     local BACKEND_NAME="$1"
     local PORT="$2"
 
-    echo -n "^\s*server ${SERVER_NAME_TAG}-${BACKEND_NAME}-.*${CONTAINER_HOST}:${PORT}.*"
+    echo -n "^\s*server ${SERVER_NAME_TAG}-${BACKEND_NAME}-.*\s+${CONTAINER_HOST}:${PORT}(\s+.*$|$)"
 }
 
 function merge_live_directives() {
@@ -152,10 +152,21 @@ function process_commands() {
         local PORT="${TOKENS[2]}"
         local OPTIONS="${TOKENS[@]:3}"
 
-        if ! grep "$BACKEND_NAME" "$LIVE_CONFIG"; then
-            >&2 echo "Error: Could not find backend '${BACKEND_NAME}' in ${CONFIG}. Moving on..."
+        if [ -z "$BACKEND_NAME" ]; then
+            >&2 echo "Warning: Missing backend name for command '${CMD}'"
             continue
         fi
+
+        if [ -z "$PORT" ]; then
+            >&2 echo "Warning: Missing port for command '${CMD} ${BACKEND_NAME}. Moving on...'"
+            continue
+        fi
+
+        if ! grep "$BACKEND_NAME" "$LIVE_CONFIG"; then
+            >&2 echo "Warning: Could not find backend '${BACKEND_NAME}' in ${CONFIG}. Moving on..."
+            continue
+        fi
+
 
         case "$CMD" in
              add)
