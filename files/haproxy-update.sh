@@ -38,6 +38,7 @@ CONTAINER_HOST="127.0.0.1"
 DISPLAY_HELP=false
 SERVER_NAME_TAG="DYNAMIC" 
 DYNAMIC_DIRECTIVE_RE="^\s*server ${SERVER_NAME_TAG}-"
+DIRECTIVE_PARSE_RE='^\s*server\ DYNAMIC-(.+)-[0-9]{2}-[0-9]{2}-.*$'
 DIRECTIVE_LOOKUP_RE='${DYNAMIC_DIRECTIVE_RE}${BACKEND_NAME}-.*${CONTAINER_HOST}:${PORT}.*'
 COMMANDS_FILE=
 COMMANDS=
@@ -97,7 +98,11 @@ function add_directive_line() {
     local CONFIG="$1"
     local DIRECTIVE="$2"
 
-    awk "/^\s*backend\s+${BACKEND_NAME}/{print; print \"${DIRECTIVE}\"; next}1" "$CONFIG" > "$CONFIG.tmp" \
+    [[ "$DIRECTIVE" =~ $DIRECTIVE_PARSE_RE ]]
+    [ -z "${BASH_REMATCH[1]}" ] && return 1
+    local BACKEND_NAME="${BASH_REMATCH[1]}"
+
+    awk "/^\s*backend ${BACKEND_NAME}/{print; print \"${DIRECTIVE}\"; next}1" "$CONFIG" > "$CONFIG.tmp" \
         && mv "$CONFIG.tmp" "$CONFIG"   
 }
 
@@ -107,7 +112,7 @@ function add_live_directive() {
     local OPTIONS="${@:3}"
     local DIRECTIVE="  server ${SERVER_NAME_TAG}-${BACKEND_NAME}-"$(date +%m-%d-%y_%H:%M:%S.%3N)" ${CONTAINER_HOST}:${PORT} ${OPTIONS}"
 
-    if grep "$(server_directive_re "${BACKEND_NAME}" "${PORT}")" "${LIVE_CONFIG}"; then
+    if grep -E "$(server_directive_re "${BACKEND_NAME}" "${PORT}")" "${LIVE_CONFIG}"; then
         >&2 echo "Warning: Ignoring 'add' command: backend ${BACKEND_NAME} already contains server directive for port ${PORT}."
         return
     fi
@@ -119,7 +124,7 @@ function remove_live_directive() {
     local BACKEND_NAME="$1"
     local PORT="$2"
 
-    gsed -r -i'' '/'"$(server_directive_re "${BACKEND_NAME}" "${PORT}")"'/d' "${LIVE_CONFIG}"
+    sed -r -i'' '/'"$(server_directive_re "${BACKEND_NAME}" "${PORT}")"'/d' "${LIVE_CONFIG}"
 }
 
 function server_directive_re() {
@@ -182,4 +187,5 @@ function process_commands() {
 }
 
 merge_live_directives &&
-process_commands
+process_commands &&
+sudo service haproxy reload
