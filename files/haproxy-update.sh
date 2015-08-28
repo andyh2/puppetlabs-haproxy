@@ -112,19 +112,19 @@ function add_live_directive() {
     local OPTIONS="${@:3}"
     local DIRECTIVE="  server ${SERVER_NAME_TAG}-${BACKEND_NAME}-"$(date +%m-%d-%y_%H:%M:%S.%3N)" ${CONTAINER_HOST}:${PORT} ${OPTIONS}"
 
-    if grep -E "$(server_directive_re "${BACKEND_NAME}" "${PORT}")" "${LIVE_CONFIG}"; then
-        >&2 echo "Warning: Ignoring 'add' command: backend ${BACKEND_NAME} already contains server directive for port ${PORT}."
+    if grep -E "$(server_directive_re "$BACKEND_NAME" "$PORT")" "$LIVE_CONFIG"; then
+        >&2 echo "Warning: Ignoring 'add' command: backend $BACKEND_NAME already contains server directive for port $PORT."
         return
     fi
     
-    add_directive_line "${LIVE_CONFIG}" "${DIRECTIVE}"
+    add_directive_line "$LIVE_CONFIG" "$DIRECTIVE"
 }
 
 function remove_live_directive() {
     local BACKEND_NAME="$1"
     local PORT="$2"
 
-    sed -r -i'' '/'"$(server_directive_re "${BACKEND_NAME}" "${PORT}")"'/d' "${LIVE_CONFIG}"
+    sed -r -i'' '/'"$(server_directive_re "$BACKEND_NAME" "$PORT")"'/d' "$LIVE_CONFIG"
 }
 
 function server_directive_re() {
@@ -136,15 +136,15 @@ function server_directive_re() {
 
 function merge_live_directives() {
     # Save directives from live config
-    local DIRECTIVES=$(grep "${DYNAMIC_DIRECTIVE_RE}" ${LIVE_CONFIG})
+    local DIRECTIVES=$(grep "$DYNAMIC_DIRECTIVE_RE" $LIVE_CONFIG)
 
     # Replace live config with base config
-    cp -f "${BASE_CONFIG}" "${LIVE_CONFIG}"
+    cp -f "$BASE_CONFIG" "$LIVE_CONFIG"
 
     # Copy existing directives into new live config
     while read DIRECTIVE; do
         if [ -n "$DIRECTIVE" ]; then
-            add_directive_line "${LIVE_CONFIG}" "${DIRECTIVE}"
+            add_directive_line "$LIVE_CONFIG" "$DIRECTIVE"
         fi
     done <<< "$DIRECTIVES"
 }
@@ -158,17 +158,17 @@ function process_commands() {
         local OPTIONS="${TOKENS[@]:3}"
 
         if [ -z "$BACKEND_NAME" ]; then
-            >&2 echo "Warning: Missing backend name for command '${CMD}'"
+            >&2 echo "Warning: Missing backend name for command '$CMD'"
             continue
         fi
 
         if [ -z "$PORT" ]; then
-            >&2 echo "Warning: Missing port for command '${CMD} ${BACKEND_NAME}. Moving on...'"
+            >&2 echo "Warning: Missing port for command '$CMD $BACKEND_NAME. Moving on...'"
             continue
         fi
 
         if ! grep "$BACKEND_NAME" "$LIVE_CONFIG"; then
-            >&2 echo "Warning: Could not find backend '${BACKEND_NAME}' in ${CONFIG}. Moving on..."
+            >&2 echo "Warning: Could not find backend '$BACKEND_NAME' in $CONFIG. Moving on..."
             continue
         fi
 
@@ -181,7 +181,7 @@ function process_commands() {
                 remove_live_directive "$BACKEND_NAME" "$PORT"
                 ;;
              *)
-             >&2 echo "Unrecognized command ${CMD}. Moving on..."
+             >&2 echo "Unrecognized command $CMD. Moving on..."
         esac
     done <<< "$COMMANDS"
 }
