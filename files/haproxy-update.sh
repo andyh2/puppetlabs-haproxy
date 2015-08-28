@@ -84,7 +84,7 @@ if ! [ -e "$BASE_CONFIG" ]; then
 fi
 
 if [ -z "$COMMANDS_FILE" ]; then
-    read COMMANDS
+    COMMANDS=$(cat)
 else
     if ! [ -e "$COMMANDS_FILE" ]; then
         >&2 echo "Error: Could not find commands file ${COMMANDS_FILE}"
@@ -150,8 +150,8 @@ function merge_live_directives() {
 }
 
 function process_commands() {
-    while read DIRECTIVE; do
-        read -a TOKENS <<< "$DIRECTIVE"
+    while read COMMAND; do
+        read -a TOKENS <<< "$COMMAND"
         local CMD="${TOKENS[0]}"
         local BACKEND_NAME="${TOKENS[1]}"
         local PORT="${TOKENS[2]}"
