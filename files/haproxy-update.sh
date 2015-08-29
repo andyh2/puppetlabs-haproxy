@@ -3,32 +3,32 @@
 set -x
 
 read -r -d '' USAGE <<EOF
-    Usage: haproxy-update.sh [--live-config /etc/haproxy/haproxy.cfg] [--base-config /etc/haproxy/haproxy.cfg.base] [--commands-file /path/to/update/commands]
+    Usage: haproxy-update.sh [--help] [--live-config /etc/haproxy/haproxy.cfg] [--base-config /etc/haproxy/haproxy.cfg.base] [--commands-file /path/to/update/commands]
     comamands must be provided by either stdin or from the file in above argument. See --help for command format.
 EOF
 
 read -r -d '' HELP <<EOF
-    haproxy-update.sh: Manages 'server' directives in haproxy.cfg.
-
-    (1) Merges base config into live config, preserving 'server' directives of live configuration.
-    (2) Adds or removes server directives in live config based on provided commands
-
     $USAGE
 
-    command format:
-    {add|del} {backend_name} {container_port} [additional_options...]
-    ...
+haproxy-update.sh: Manages 'server' directives in haproxy.cfg.
 
-    example:
-    del domain-api 54321
-    add domain-api 12345 maxconn 100
-    add cassandra 39391
+(1) Merges base config into live config, preserving 'server' directives of live configuration.
+(2) Adds or removes server directives in live config based on provided commands
 
-    Conventions:
-        Commands are processed in the order they are provided. 
-        'add' commands are ignored if the container port already exists for the given backend_NAME. 
-            If you wish add an additional option to an existing server directive, make sure
-            to 'del' the directive before 'add'ing its replacement.
+command format:
+{add|del} {backend_name} {container_port} [additional_options...]
+...
+
+example:
+del domain-api 54321
+add domain-api 12345 maxconn 100
+add cassandra 39391
+
+Conventions:
+    Commands are processed in the order they are provided. 
+    'add' commands are ignored if the container port already exists for the given backend_NAME. 
+        If you wish add an additional option to an existing server directive, make sure
+        to 'del' the directive before 'add'ing its replacement.
 EOF
 
 # Defaults
