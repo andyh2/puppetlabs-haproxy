@@ -129,6 +129,14 @@ class haproxy (
   # Set managed config path based upon $dynamic_config class param
   if $dynamic_config {
     $_managed_config_path =  '/etc/haproxy/haproxy.cfg.base'
+    
+    file { '/usr/local/bin/haproxy-update':
+      mode   => '0755',
+      owner  => root,
+      group  => root,
+      source => 'puppet:///modules/haproxy/haproxy-update.sh',
+      require => Package[$package_name],
+    }
   }
   else {
     $_managed_config_path = '/etc/haproxy/haproxy.cfg'
