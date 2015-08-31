@@ -8,7 +8,7 @@ class haproxy::config inherits haproxy {
 
   if $dynamic_config {
     file { $live_config:
-      require => File[$_managed_config_path],
+      require => Concat[$_managed_config_path],
       source  => $_managed_config_path,
       replace => false, # After initial provision, live config file is managed by haproxy-update.sh
     }
