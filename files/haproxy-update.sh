@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
-
 read -r -d '' USAGE <<EOF
     Usage: haproxy-update.sh [--help] [--live-config /etc/haproxy/haproxy.cfg] [--base-config /etc/haproxy/haproxy.cfg.base] [--commands-file /path/to/update/commands]
     comamands must be provided by either stdin or from the file in above argument. See --help for command format.
@@ -104,7 +102,7 @@ function add_directive_line() {
 
     # Add whitepsace if missing
     [[ "$DIRECTIVE" =~ ^[[:space:]]+ ]] || DIRECTIVE="  $DIRECTIVE"
-    
+
     awk "/^\s*backend ${BACKEND_NAME}/{print; print \"${DIRECTIVE}\"; next}1" "$CONFIG" > "$CONFIG.tmp" \
         && mv "$CONFIG.tmp" "$CONFIG"   
 }
