@@ -102,6 +102,9 @@ function add_directive_line() {
     [ -z "${BASH_REMATCH[1]}" ] && return 1
     local BACKEND_NAME="${BASH_REMATCH[1]}"
 
+    # Add whitepsace if missing
+    [[ "$DIRECTIVE" =~ ^[[:space:]]+ ]] || DIRECTIVE="  $DIRECTIVE"
+    
     awk "/^\s*backend ${BACKEND_NAME}/{print; print \"${DIRECTIVE}\"; next}1" "$CONFIG" > "$CONFIG.tmp" \
         && mv "$CONFIG.tmp" "$CONFIG"   
 }
