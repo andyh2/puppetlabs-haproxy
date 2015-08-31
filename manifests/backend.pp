@@ -59,7 +59,8 @@ define haproxy::backend (
     'balance' => 'roundrobin'
   }
 ) {
-
+  include haproxy
+  
   if defined(Haproxy::Listen[$name]) {
     fail("An haproxy::listen resource was discovered with the same name (${name}) which is not supported")
   }
@@ -67,7 +68,7 @@ define haproxy::backend (
   # Template uses: $name, $ipaddress, $ports, $options
   concat::fragment { "${name}_backend_block":
     order   => "20-${name}-00",
-    target  => '/etc/haproxy/haproxy.cfg.base',
+    target  => $haproxy::_managed_config_path,
     content => template('haproxy/haproxy_backend_block.erb'),
   }
 

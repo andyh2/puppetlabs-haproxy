@@ -72,11 +72,11 @@ define haproxy::frontend (
     ],
   }
 ) {
-
+  include haproxy
   # Template uses: $name, $ipaddress, $ports, $options
   concat::fragment { "${name}_frontend_block":
     order   => "15-${name}-00",
-    target  => '/etc/haproxy/haproxy.cfg.base',
+    target  => $haproxy::_managed_config_path,
     content => template('haproxy/haproxy_frontend_block.erb'),
   }
 }

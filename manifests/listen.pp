@@ -84,7 +84,7 @@ define haproxy::listen (
   },
   $bind_options     = ''
 ) {
-
+  include haproxy
   if defined(Haproxy::Backend[$name]) {
     fail("An haproxy::backend resource was discovered with the same name (${name}) which is not supported")
   }
@@ -92,7 +92,7 @@ define haproxy::listen (
   # Template uses: $name, $ipaddress, $ports, $options
   concat::fragment { "${name}_listen_block":
     order   => "20-${name}-00",
-    target  => '/etc/haproxy/haproxy.cfg.base',
+    target  => $haproxy::_managed_config_path,
     content => template('haproxy/haproxy_listen_block.erb'),
   }
 

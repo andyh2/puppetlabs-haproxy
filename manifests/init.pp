@@ -126,6 +126,14 @@ class haproxy (
     $_service_manage = $service_manage
   }
 
+  # Set managed config path based upon $dynamic_config class param
+  if $dynamic_config {
+    $_managed_config_path =  '/etc/haproxy/haproxy.cfg.base'
+  }
+  else {
+    $_managed_config_path = '/etc/haproxy/haproxy.cfg'
+  }
+  
   if $_package_ensure == 'absent' or $_package_ensure == 'purged' {
     anchor { 'haproxy::begin': }
     ~> class { 'haproxy::service': }

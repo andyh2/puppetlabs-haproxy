@@ -4,22 +4,17 @@ class haproxy::config inherits haproxy {
     fail("Use of private class ${name} by ${caller_module_name}")
   }
 
-  $config_file = '/etc/haproxy/haproxy.cfg'
-  $base_config_file = '/etc/haproxy/haproxy.cfg.base'
+  $live_config = '/etc/haproxy/haproxy.cfg'
 
-  if $haproxy::dynamic_config {
-    file { $config_file:
-      require => File[$base_config_file],
-      source  => $base_config_file,
+  if $dynamic_config {
+    file { $live_config:
+      require => File[$_managed_config_path],
+      source  => $_managed_config_path,
       replace => false, # After initial provision, live config file is managed by haproxy-update.sh
     }
-    
-    $managed_config_path = $base_config_file
-  } else {
-    $managed_config_path = $config_file
   }
 
-  concat { $managed_config_path:
+  concat { $_managed_config_path:
     owner   => '0',
     group   => '0',
     mode    => '0644',
@@ -27,14 +22,14 @@ class haproxy::config inherits haproxy {
 
   # Simple Header
   concat::fragment { '00-header':
-    target  => $managed_config_path,
+    target  => $_managed_config_path,
     order   => '01',
     content => "# This file managed by Puppet\n",
   }
 
   # Template uses $global_options, $defaults_options
   concat::fragment { 'haproxy-base':
-    target  => $managed_config_path,
+    target  => $_managed_config_path,
     order   => '10',
     content => template('haproxy/haproxy-base.cfg.erb'),
   }

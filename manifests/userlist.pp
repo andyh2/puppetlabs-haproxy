@@ -31,11 +31,12 @@ define haproxy::userlist (
   $users = undef,
   $groups = undef,
 ) {
-
+  include haproxy
+  
   # Template usse $name, $users, $groups
   concat::fragment { "${name}_userlist_block":
     order   => "12-${name}-00",
-    target  => '/etc/haproxy/haproxy.cfg.base',
+    target  => $haproxy::_managed_config_path,
     content => template('haproxy/haproxy_userlist_block.erb'),
   }
 }
