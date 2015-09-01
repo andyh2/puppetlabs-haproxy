@@ -93,7 +93,6 @@ class haproxy (
   $manage_service   = undef,
   $enable           = undef,
 ) inherits haproxy::params {
-
   if $service_ensure != true and $service_ensure != false {
     if ! ($service_ensure in [ 'running','stopped']) {
       fail('service_ensure parameter must be running, stopped, true, or false')
@@ -136,8 +135,7 @@ class haproxy (
       source => 'puppet:///modules/haproxy/haproxy-update.sh',
       require => Package[$package_name],
     }
-  }
-  else {
+  } else {
     $_managed_config_path = '/etc/haproxy/haproxy.cfg'
   }
   
